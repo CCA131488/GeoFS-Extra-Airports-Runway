@@ -7,3 +7,7 @@
 2.Copy the **extrarunways.js** and paste it into the browser console
 
 3.Reload the terrain (**not the game!**) ,you can choose anouther airport far away from which airport you currently at,and then change back
+
+## About this addon
+
+This addon add some runways which were missing in GeoFS's runways database
