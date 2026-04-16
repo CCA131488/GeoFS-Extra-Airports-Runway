@@ -11,5 +11,9 @@
 ## About this addon
 
 This addon add some runways which were missing in GeoFS's runways database,
-the new added runways have **usable PAPI light** and runway overlay,
-but the new runways haven't ILS and nav data,so you can't see or direct them from the map
+
+the new added runways have **usable PAPI light** and **runway overlay**,
+
+but the new runways haven't ILS and nav data,so you can't see it and tp to it from the map
+
+### You can use the Simbrief or manually modify the navigation data to use ILS normally
