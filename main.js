@@ -1,14 +1,12 @@
-// GeoFS 跑道数据库管理插件
 (function() {
     if (typeof geofs === 'undefined' || !geofs.majorRunwayGrid) {
         console.error('错误: geofs.majorRunwayGrid 未找到，请确保在GeoFS游戏页面中运行此脚本');
         return;
     }
 
-    // 地球半径（公里）
     const EARTH_RADIUS = 6371;
 
-    // 计算两点间距离（公里）
+    // 计算两点间距离
     function haversineDistance(lat1, lon1, lat2, lon2) {
         const toRad = Math.PI / 180;
         const dLat = (lat2 - lat1) * toRad;
@@ -19,7 +17,7 @@
         return EARTH_RADIUS * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    // 获取坐标所在的网格键（基于整数部分，负零处理）
+    // 获取坐标所在的网格键
     function getGridKey(coord) {
         let key = Math.trunc(coord);
         if (key === -0) key = 0;
@@ -80,7 +78,7 @@
             geofs.majorRunwayGrid[latKey][lonKey] = [];
         }
 
-        // 检查重复（基于ICAO和坐标）
+        // 检查重复
         const existing = geofs.majorRunwayGrid[latKey][lonKey].find(r => r[0] === icao && Math.abs(r[4] - lat) < 0.001 && Math.abs(r[5] - lon) < 0.001);
         if (existing) {
             console.warn(`警告: 跑道 ${icao} 已存在于数据库中，未添加`);
@@ -158,7 +156,7 @@
         return results;
     }
 
-    // 批量添加跑道（参数为数组）
+    // 批量添加跑道
     function addRunwaysBatch(runwaysArray) {
         let success = 0;
         for (const r of runwaysArray) {
