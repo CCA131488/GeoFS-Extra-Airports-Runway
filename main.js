@@ -1,42 +1,35 @@
-(function() {
+// ========== 请修改为您的 GitHub JSON 文件 raw 地址 ==========
+const RUNWAYS_JSON_URL = 'https://raw.githubusercontent.com/CES2731/GeoFS-Extra-Airports-Runway/refs/heads/main/test.json';
+// ============================================================
+
+(async function() {
     if (typeof geofs === 'undefined' || !geofs.majorRunwayGrid) {
-        console.error('错误: geofs.majorRunwayGrid 未找到，请确保在GeoFS游戏页面中运行此脚本');
+        console.error('❌ 错误：未找到 geofs.majorRunwayGrid，请确认在 GeoFS 游戏页面运行');
         return;
     }
 
-    const EARTH_RADIUS = 6371;
-
-    // 计算两点间距离
-    function haversineDistance(lat1, lon1, lat2, lon2) {
-        const toRad = Math.PI / 180;
-        const dLat = (lat2 - lat1) * toRad;
-        const dLon = (lon2 - lon1) * toRad;
-        const a = Math.sin(dLat / 2) ** 2 +
-                  Math.cos(lat1 * toRad) * Math.cos(lat2 * toRad) *
-                  Math.sin(dLon / 2) ** 2;
-        return EARTH_RADIUS * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    }
-
-    // 获取坐标所在的网格键
+    // 辅助函数：将经纬度转换为网格键（整数部分）
     function getGridKey(coord) {
         let key = Math.trunc(coord);
         if (key === -0) key = 0;
         return String(key);
     }
 
-    // 寻找最近的跑道，返回其所在的网格键
+    // 查找附近已有跑道的网格（用于保持分组一致性）
     function findClosestRunwayGrid(lat, lon) {
+        const EARTH_RADIUS = 6371;
+        const toRad = Math.PI / 180;
         let minDist = Infinity;
-        let targetLatKey = null;
-        let targetLonKey = null;
-
+        let targetLatKey = null, targetLonKey = null;
         for (const [latKey, lonGrid] of Object.entries(geofs.majorRunwayGrid)) {
             for (const [lonKey, runways] of Object.entries(lonGrid)) {
-                for (const runway of runways) {
-                    const rLat = runway[4];
-                    const rLon = runway[5];
+                for (const r of runways) {
+                    const rLat = r[4], rLon = r[5];
                     if (rLat === undefined || rLon === undefined) continue;
-                    const dist = haversineDistance(lat, lon, rLat, rLon);
+                    const dLat = (rLat - lat) * toRad;
+                    const dLon = (rLon - lon) * toRad;
+                    const a = Math.sin(dLat/2)**2 + Math.cos(lat*toRad)*Math.cos(rLat*toRad)*Math.sin(dLon/2)**2;
+                    const dist = EARTH_RADIUS * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
                     if (dist < minDist) {
                         minDist = dist;
                         targetLatKey = latKey;
@@ -48,133 +41,90 @@
         return { latKey: targetLatKey, lonKey: targetLonKey };
     }
 
-    // 添加跑道到数据库
+    // 添加单条跑道
     function addRunway(icao, length, width, heading, lat, lon, elevation = 0) {
-        if (!icao || typeof icao !== 'string') {
-            console.error('错误: ICAO代码必须为非空字符串');
-            return false;
-        }
-        if (length <= 0 || width <= 0) {
-            console.error('错误: 跑道长度和宽度必须为正数');
-            return false;
-        }
+        if (!icao || typeof icao !== 'string') return false;
+        if (length <= 0 || width <= 0) return false;
 
-        // 确定网格位置
         let latKey = getGridKey(lat);
         let lonKey = getGridKey(lon);
-        let targetGrid = findClosestRunwayGrid(lat, lon);
-
-        // 如果找到附近的跑道，使用其网格（确保分组一致性）
-        if (targetGrid.latKey && targetGrid.lonKey) {
-            latKey = targetGrid.latKey;
-            lonKey = targetGrid.lonKey;
+        const nearest = findClosestRunwayGrid(lat, lon);
+        if (nearest.latKey && nearest.lonKey) {
+            latKey = nearest.latKey;
+            lonKey = nearest.lonKey;
         }
 
-        // 确保网格结构存在
-        if (!geofs.majorRunwayGrid[latKey]) {
-            geofs.majorRunwayGrid[latKey] = {};
-        }
-        if (!geofs.majorRunwayGrid[latKey][lonKey]) {
-            geofs.majorRunwayGrid[latKey][lonKey] = [];
-        }
+        if (!geofs.majorRunwayGrid[latKey]) geofs.majorRunwayGrid[latKey] = {};
+        if (!geofs.majorRunwayGrid[latKey][lonKey]) geofs.majorRunwayGrid[latKey][lonKey] = [];
 
-        // 检查重复
-        const existing = geofs.majorRunwayGrid[latKey][lonKey].find(r => r[0] === icao && Math.abs(r[4] - lat) < 0.001 && Math.abs(r[5] - lon) < 0.001);
-        if (existing) {
-            console.warn(`警告: 跑道 ${icao} 已存在于数据库中，未添加`);
-            return false;
-        }
+        // 避免重复（相同ICAO且坐标相近）
+        const exists = geofs.majorRunwayGrid[latKey][lonKey].some(r => r[0] === icao && Math.abs(r[4]-lat) < 0.001 && Math.abs(r[5]-lon) < 0.001);
+        if (exists) return false;
 
-        // 新跑道数据格式: [ICAO, 长度(ft), 宽度(ft), 航向(°), 纬度, 经度, 海拔(ft)可选]
-        const newRunway = [icao, length, width, heading, lat, lon];
-        if (elevation !== 0) newRunway.push(elevation);
-
-        geofs.majorRunwayGrid[latKey][lonKey].push(newRunway);
-        console.log(`成功添加跑道: ${icao} (${lat}, ${lon}) → 网格 [${latKey}][${lonKey}]`);
+        const runway = [icao, length, width, heading, lat, lon];
+        if (elevation !== 0) runway.push(elevation);
+        geofs.majorRunwayGrid[latKey][lonKey].push(runway);
+        console.log(`✅ ${icao} (${lat}, ${lon})`);
         return true;
     }
 
-    // 删除跑道（通过ICAO和坐标精确匹配）
-    function removeRunway(icao, lat, lon) {
-        for (const [latKey, lonGrid] of Object.entries(geofs.majorRunwayGrid)) {
-            for (const [lonKey, runways] of Object.entries(lonGrid)) {
-                const index = runways.findIndex(r => r[0] === icao && Math.abs(r[4] - lat) < 0.001 && Math.abs(r[5] - lon) < 0.001);
-                if (index !== -1) {
-                    const removed = runways.splice(index, 1)[0];
-                    console.log(`已删除跑道: ${removed[0]} (${removed[4]}, ${removed[5]})`);
-                    // 如果该网格数组为空，可选择删除空网格（可选）
-                    if (runways.length === 0) {
-                        delete geofs.majorRunwayGrid[latKey][lonKey];
-                        if (Object.keys(geofs.majorRunwayGrid[latKey]).length === 0) {
-                            delete geofs.majorRunwayGrid[latKey];
-                        }
-                    }
-                    return true;
-                }
-            }
-        }
-        console.warn(`未找到匹配的跑道: ${icao} (${lat}, ${lon})`);
-        return false;
-    }
-
-    // 列出所有跑道（可选限制数量）
-    function listRunways(limit = 50) {
-        let count = 0;
-        console.log('=== 跑道数据库列表 ===');
-        for (const [latKey, lonGrid] of Object.entries(geofs.majorRunwayGrid)) {
-            for (const [lonKey, runways] of Object.entries(lonGrid)) {
-                for (const r of runways) {
-                    console.log(`${r[0]} | 长度:${r[1]}ft | 宽度:${r[2]}ft | 航向:${r[3]}° | 坐标:(${r[4]}, ${r[5]})${r[6] ? ' | 海拔:'+r[6]+'ft' : ''}`);
-                    if (++count >= limit) {
-                        console.log(`... 共 ${count} 条记录（已达到显示限制 ${limit}）`);
-                        return;
-                    }
-                }
-            }
-        }
-        console.log(`总计 ${count} 条跑道记录`);
-    }
-
-    // 根据ICAO搜索跑道
-    function findRunwayByICAO(icao) {
-        const results = [];
-        for (const [latKey, lonGrid] of Object.entries(geofs.majorRunwayGrid)) {
-            for (const [lonKey, runways] of Object.entries(lonGrid)) {
-                for (const r of runways) {
-                    if (r[0].toUpperCase() === icao.toUpperCase()) {
-                        results.push(r);
-                    }
-                }
-            }
-        }
-        if (results.length === 0) {
-            console.log(`未找到 ICAO 代码为 ${icao} 的跑道`);
-        } else {
-            console.log(`找到 ${results.length} 条匹配跑道:`);
-            results.forEach(r => console.log(r));
-        }
-        return results;
-    }
-
-    // 批量添加跑道
-    function addRunwaysBatch(runwaysArray) {
+    // 批量添加
+    function addBatch(runwaysArray) {
         let success = 0;
         for (const r of runwaysArray) {
             if (addRunway(r[0], r[1], r[2], r[3], r[4], r[5], r[6] || 0)) success++;
         }
-        console.log(`批量添加完成: 成功 ${success} / ${runwaysArray.length}`);
+        console.log(`📊 成功添加 ${success} / ${runwaysArray.length} 条跑道`);
+        return success;
     }
 
-    // 导出全局API
-    window.geofsRunwayTool = {
-        add: addRunway,
-        remove: removeRunway,
-        list: listRunways,
-        find: findRunwayByICAO,
-        addBatch: addRunwaysBatch,
-        version: '1.0.0'
-    };
+    // 从 JSON 数据解析并添加
+    function parseAndAdd(data) {
+        let runwaysArray = [];
+        if (Array.isArray(data)) {
+            if (data.length === 0) throw new Error('JSON 数组为空');
+            if (Array.isArray(data[0])) {
+                runwaysArray = data;
+            } else if (typeof data[0] === 'object' && data[0].icao) {
+                runwaysArray = data.map(item => [item.icao, item.length, item.width, item.heading, item.lat, item.lon, item.elevation || 0]);
+            } else {
+                throw new Error('不支持的 JSON 数组格式');
+            }
+        } else if (typeof data === 'object' && data.runways && Array.isArray(data.runways)) {
+            const items = data.runways;
+            if (items.length === 0) throw new Error('runways 数组为空');
+            if (Array.isArray(items[0])) {
+                runwaysArray = items;
+            } else {
+                runwaysArray = items.map(item => [item.icao, item.length, item.width, item.heading, item.lat, item.lon, item.elevation || 0]);
+            }
+        } else {
+            throw new Error('无法解析 JSON 结构');
+        }
+        return addBatch(runwaysArray);
+    }
 
-    console.log('GeoFS 跑道管理插件已加载，使用 geofsRunwayTool.add(icao, length, width, heading, lat, lon, elevation) 添加跑道');
-    console.log('示例: geofsRunwayTool.add("ZSSS", 11130, 144, 177.37, 31.21303, 121.33165, 10)');
+    console.log(`🚀 开始从 ${RUNWAYS_JSON_URL} 加载跑道数据...`);
+    try {
+        const response = await fetch(RUNWAYS_JSON_URL);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const json = await response.json();
+        const added = parseAndAdd(json);
+        console.log(`🎉 加载完成！共添加 ${added} 条跑道。`);
+
+        // 尝试刷新地图显示（缩放地图或移动飞机）
+        if (typeof geofs !== 'undefined' && geofs.aircraft && geofs.aircraft.instance) {
+            const pos = geofs.aircraft.instance.getPosition();
+            geofs.aircraft.instance.setPosition({ lat: pos.lat + 0.001, lng: pos.lng, alt: pos.alt });
+            setTimeout(() => geofs.aircraft.instance.setPosition(pos), 100);
+            console.log('🔄 已轻微移动飞机以触发地图刷新');
+        }
+        if (typeof map !== 'undefined' && map.setView) {
+            const center = map.getCenter();
+            map.setView(center, map.getZoom() - 0.1);
+            setTimeout(() => map.setView(center, map.getZoom() + 0.1), 50);
+        }
+    } catch (err) {
+        console.error('❌ 加载失败:', err);
+    }
 })();
