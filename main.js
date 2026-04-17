@@ -1,5 +1,5 @@
 // ========== 请修改为您的 GitHub JSON 文件 raw 地址 ==========
-const RUNWAYS_JSON_URL = 'https://github.com/CES2731/GeoFS-Extra-Airports-Runway/raw/refs/heads/main/runways.json';
+const RUNWAYS_JSON_URL = 'https://raw.githubusercontent.com/CES2731/GeoFS-Extra-Airports-Runway/refs/heads/main/runways.json';
 // ============================================================
 
 (async function() {
