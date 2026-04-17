@@ -225,3 +225,8 @@
     console.log('GeoFS 跑道管理插件已加载（支持从GitHub加载JSON）');
     console.log('使用方法: geofsRunwayTool.loadFromGitHub("https://raw.githubusercontent.com/你的用户名/仓库名/分支/文件.json")');
 })();
+
+// 从 GitHub 加载跑道数据（异步，返回 Promise）
+geofsRunwayTool.loadFromGitHub('https://raw.githubusercontent.com/你的用户名/仓库名/main/runways.json')
+    .then(count => console.log(`成功加载 ${count} 条跑道`))
+    .catch(err => console.error(err));
