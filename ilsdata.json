@@ -24,7 +24,7 @@
         "major": true
     },
     {
-        "iaco": "ZJHK",
+        "icao": "ZJHK",
         "indent": "28",
         "lat": 19.95382502845635,
         "lon": 110.48275808337726,
@@ -36,7 +36,7 @@
         "major": true
     },
     {
-        "iaco": "ZJHK",
+        "icao": "ZJHK",
         "indent": "10",
         "lat": 19.953732020428898,
         "lon": 110.44826872960125,
