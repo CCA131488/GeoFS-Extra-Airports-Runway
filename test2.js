@@ -227,6 +227,6 @@
 })();
 
 // 从 GitHub 加载跑道数据（异步，返回 Promise）
-geofsRunwayTool.loadFromGitHub('https://raw.githubusercontent.com/你的用户名/仓库名/main/runways.json')
+geofsRunwayTool.loadFromGitHub('https://raw.githubusercontent.com/CES2731/GeoFS-Extra-Airports-Runway/refs/heads/main/test.json')
     .then(count => console.log(`成功加载 ${count} 条跑道`))
     .catch(err => console.error(err));
