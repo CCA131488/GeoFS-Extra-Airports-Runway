@@ -118,5 +118,29 @@
         "freq": 110350,
         "slope": 3.0,
         "major": true
+    },
+    {
+        "icao": "VHHH",
+        "ident": "07L",
+        "lat": 22.321589,
+        "lon": 113.882294,
+        "heading": 70.90,
+        "lengthFt": 12467,
+        "widthFt": 197,
+        "freq": 108750,
+        "slope": 3.0,
+        "major": true
+    },
+    {
+        "icao": "VHHH",
+        "ident": "25R",
+        "lat": 22.331792,
+        "lon": 113.913956,
+        "heading": 250.90,
+        "lengthFt": 12467,
+        "widthFt": 197,
+        "freq": 111550,
+        "slope": 3.0,
+        "major": true
     }
 ]
