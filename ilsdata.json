@@ -94,5 +94,29 @@
         "freq": 108950,
         "slope": 3.0,
         "major": true
+    },
+    {
+        "icao": "ZGGG",
+        "ident": "03",
+        "lat": 23.354722501662813,
+        "lon": 113.3191670211127,
+        "heading": 14.00,
+        "lengthFt": 11811,
+        "widthFt": 147,
+        "freq": 111350,
+        "slope": 3.0,
+        "major": true
+    },
+    {
+        "icao": "ZGGG",
+        "ident": "21",
+        "lat": 23.386372301921927,
+        "lon": 113.32766818288465,
+        "heading": 194.00,
+        "lengthFt": 11811,
+        "widthFt": 147,
+        "freq": 110350,
+        "slope": 3.0,
+        "major": true
     }
 ]
