@@ -8,7 +8,8 @@
 
 **If the runways load successfully,you will see some message like this:**
 
-<img width="561" height="230" alt="屏幕截图 2026-04-17 123251" src="https://github.com/user-attachments/assets/86e925e8-3b2a-41af-b827-9429582d5e6e" />
+<img width="1036" height="1069" alt="屏幕截图 2026-04-18 121151" src="https://github.com/user-attachments/assets/d84cb8ba-973b-440d-b65b-ee90d758eff3" />
+
 
 ## About this addon
 
