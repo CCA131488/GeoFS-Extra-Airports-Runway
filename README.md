@@ -2,18 +2,13 @@
 
 ## How to use
 
-1.Copy the **main.js** and paste it into the browser console
+1.Copy the **main.js** and paste it into the **browser console** or **Tampermonkey**(If you use Tampermonkey,ignore the second step)
 
 2.Reload the terrain (**not the game!**) ,you can choose anouther airport far away from which airport you currently at,and then change back
 
 **If the runways load successfully,you will see some message like this:**
 
 <img width="561" height="230" alt="屏幕截图 2026-04-17 123251" src="https://github.com/user-attachments/assets/86e925e8-3b2a-41af-b827-9429582d5e6e" />
-
-
-## Add ILS data
-
-Copy the **ilsdataloader.js** and paste it into the browser console
 
 ## About this addon
 
