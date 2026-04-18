@@ -1,3 +1,14 @@
+// ==UserScript==
+// @name         Extra Airport Runways
+// @namespace    http://tampermonkey.net/
+// @version      2026-04-18
+// @description  Extra Runways
+// @author       CES2731
+// @match        https://www.geo-fs.com/geofs.php*
+// @match        https://*.geo-fs.com/geofs.php*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=geo-fs.com
+// @grant        none
+// ==/UserScript==
 (function() {
     'use strict';
 
