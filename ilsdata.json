@@ -358,5 +358,29 @@
         "freq": 109200,
         "slope": 3.0,
         "major": true
+    },
+    {
+        "icao": "VOBL",
+        "ident": "27L",
+        "lat": 13.189433145137137,
+        "lon": 77.7268964769423,
+        "heading": 270.5,
+        "lengthFt": 13123,
+        "widthFt": 148,
+        "freq": 111500,
+        "slope": 3.0,
+        "major": true
+    },
+    {
+        "icao": "VOBL",
+        "ident": "09R",
+        "lat": 13.189758790438958,
+        "lon": 77.69000541561459,
+        "heading": 90.50,
+        "lengthFt": 13123,
+        "widthFt": 148,
+        "freq": 109900,
+        "slope": 3.0,
+        "major": true
     }
 ]
