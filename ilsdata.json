@@ -430,5 +430,17 @@
         "freq": 108900,
         "slope": 3.0,
         "major": true
+    },
+    {
+        "icao": "ZUTF",
+        "ident": "11",
+        "lat": 30.315181474653844,
+        "lon": 104.4599015188163,
+        "heading": 112.21,
+        "lengthFt": 12467,
+        "widthFt": 148,
+        "freq": null,
+        "slope": 3.0,
+        "major": true
     }
 ]
