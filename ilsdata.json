@@ -490,5 +490,29 @@
         "freq": 108750,
         "slope": 3.0,
         "major": true
+    },
+    {
+        "icao": "SPJC",
+        "ident": "16R",
+        "lat": -12.012062787997538,
+        "lon": -77.13110199721568,
+        "heading": 154,
+        "lengthFt": 9268,
+        "widthFt": 148,
+        "freq": null,
+        "slope": 3.0,
+        "major": true
+    },
+    {
+        "icao": "SPJC",
+        "ident": "34L",
+        "lat": -12.035044896504091,
+        "lon": -77.11977586516838,
+        "heading": 334,
+        "lengthFt": 9268,
+        "widthFt": 148,
+        "freq": null,
+        "slope": 3.0,
+        "major": true
     }
 ]
