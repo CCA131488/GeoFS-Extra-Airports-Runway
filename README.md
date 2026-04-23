@@ -57,6 +57,3 @@ Discord:MU2731 QQ:1830524785@qq.com
 * ZSHC RWY07/25
 * ZBUL RWY14/32
 * ZGZJ RWY15/33 (**Zhanjiang Wuchuan**)
-
-
-<details>
