@@ -586,5 +586,29 @@
         "freq": 110350,
         "slope": 3.0,
         "major": true
+    },
+    {
+        "icao": "ZBUL",
+        "ident": "14",
+        "lat": 46.20839543014678,
+        "lon": 121.9850210203525,
+        "heading": 125.55,
+        "lengthFt": 8530,
+        "widthFt": 148,
+        "freq": 115700,
+        "slope": 3.0,
+        "major": true
+    },
+    {
+        "icao": "ZBUL",
+        "ident": "32",
+        "lat": 46.1948002081082,
+        "lon": 122.01242917356896,
+        "heading": 305.55,
+        "lengthFt": 8530,
+        "widthFt": 148,
+        "freq": 109300,
+        "slope": 3.0,
+        "major": true
     }
 ]
