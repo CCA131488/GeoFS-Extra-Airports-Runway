@@ -45,7 +45,7 @@ Discord:MU2731 QQ:1830524785@qq.com
 * ZBUL RWY14/32
 * ZGZJ RWY15/33 (**Zhanjiang Wuchuan**)
 
-<details>
+</details>
 
 ## Effect display image
 
