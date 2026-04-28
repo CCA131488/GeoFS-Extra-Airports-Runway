@@ -682,5 +682,29 @@
         "freq": 108950,
         "slope": 3.0,
         "major": true
+    },
+    {
+        "icao": "ZWWW",
+        "ident": "08R",
+        "lat": 43.919267107162554,
+        "lon": 87.45113260697536,
+        "heading": 73.58,
+        "lengthFt": 11811,
+        "widthFt": 148,
+        "freq": 109300,
+        "slope": 3.0,
+        "major": true
+    },
+    {
+        "icao": "ZWWW",
+        "ident": "26L",
+        "lat": 43.92836918490264,
+        "lon": 87.49411930386864,
+        "heading": 253.58,
+        "lengthFt": 11811,
+        "widthFt": 148,
+        "freq": 110500,
+        "slope": 3.0,
+        "major": true
     }
 ]
