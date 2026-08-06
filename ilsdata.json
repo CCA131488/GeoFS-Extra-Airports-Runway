@@ -970,5 +970,29 @@
         "freq": 111700,
         "slope": 3.0,
         "major": true
+    },
+    {
+        "icao": "ZUTR",
+        "ident": "22",
+        "lat": 27.894882859576924,
+        "lon": 109.32036961713665,
+        "heading": 222.66,
+        "lengthFt": 8530,
+        "widthFt": 148,
+        "freq": 108500,
+        "slope": 3.0,
+        "major": true
+    },
+    {
+        "icao": "ZUTR",
+        "ident": "04",
+        "lat": 27.87771670318916,
+        "lon": 109.30251413873155,
+        "heading": 42.66,
+        "lengthFt": 8530,
+        "widthFt": 148,
+        "freq": 108500,
+        "slope": 3.0,
+        "major": true
     }
 ]
