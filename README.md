@@ -52,7 +52,8 @@ Discord:MU2731 QQ:1830524785@qq.com
 * ZBNY RWY18/36 (**Beijing Nanyuan,now closed**)
 * ZSJX RWY05/23 RWY12/20
 * ZSYN RWY04/22
-* ZGBH RWY0119
+* ZGBH RWY01/19
+* ZUTR RWY04/22
 
 </details>
 
