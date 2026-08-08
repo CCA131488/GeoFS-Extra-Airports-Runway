@@ -1,33 +1,44 @@
 // ==UserScript==
 // @name         Extra Airport Runways
 // @namespace    http://tampermonkey.net/
-// @version      2026-04-18
+// @version      2026-04-21
 // @description  Extra Runways
-// @author       CES2731/Deepseek
-// @match        https://www.geo-fs.com/geofs.php*
+// @author       CES2731 & Deepseek
+// @match        https://geo-fs.com/geofs.php*
 // @match        https://*.geo-fs.com/geofs.php*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=geo-fs.com
 // @grant        none
 // ==/UserScript==
-
 (function() {
     'use strict';
 
-    if (typeof geofs === 'undefined') {
-        console.error('❌ GeoFS 未加载，请在 GeoFS 页面中运行此脚本。');
-        return;
+    // ==================== ✅ 新增：等待 GeoFS 完全加载 ====================
+    function waitGeoFSFull(callback) {
+        const t = setInterval(() => {
+            if (
+                typeof geofs !== 'undefined' &&
+                geofs.nav &&
+                typeof geofs.nav.addNavaid === 'function' &&
+                geofs.majorRunwayGrid &&
+                geofs.aircraft &&
+                geofs.aircraft.instance &&
+                geofs.aircraft.instance.llaLocation
+            ) {
+                clearInterval(t);
+                console.log("✅ GeoFS FULLY LOADED");
+                callback();
+            }
+        }, 1000);
     }
 
     // ==================== 用户配置区域 ====================
     const CONFIG = {
-        // 跑道网格数据 URL（用于 geofs.majorRunwayGrid）
         GRID_DATA_URL: 'https://raw.githubusercontent.com/CES2731/GeoFS-Extra-Airports-Runway/refs/heads/main/runways.json',
-        // ILS/RNW 导航及地图标记数据 URL
         ILS_DATA_URL: 'https://raw.githubusercontent.com/CES2731/GeoFS-Extra-Airports-Runway/refs/heads/main/ilsdata.json'
     };
     // ====================================================
 
-    // ---------- 第一部分：跑道网格数据加载（源自 main (1).js）----------
+    // ---------- 第一部分：跑道网格数据加载 ----------
     function getGridKey(coord) {
         let key = Math.trunc(coord);
         if (key === -0) key = 0;
@@ -131,73 +142,50 @@
         }
     }
 
-    // ---------- 第二部分：ILS/RNW 导航及地图标记加载（源自 ilsdataloader.js）----------
+    // ---------- 第二部分：ILS/RNW ----------
     function addCustomRunway(options) {
         const icao = options.icao || 'CUST';
         const ident = options.ident || '00';
         const lat = parseFloat(options.lat);
         const lon = parseFloat(options.lon);
         const heading = parseFloat(options.heading);
-        const lengthFt = options.lengthFt || 10000;
-        const widthFt = options.widthFt || 150;
-        const freq = options.freq || null;
-        const slope = options.slope || 3.0;
-        const major = options.major !== false;
-
-        if (isNaN(lat) || isNaN(lon) || isNaN(heading)) {
-            console.error(`❌ 跑道参数无效: ${icao} ${ident}`);
-            return null;
-        }
 
         const runwayData = {
-            id: null,
-            icao: icao,
-            ident: ident,
+            icao, ident,
             name: `${icao}|${ident}|${icao}`,
-            lat: lat,
-            lon: lon,
-            heading: heading,
-            lengthFeet: lengthFt,
-            widthFeet: widthFt,
-            major: major,
-            freq: freq,
-            slope: slope,
+            lat, lon, heading,
+            lengthFeet: options.lengthFt || 10000,
+            widthFeet: options.widthFt || 150,
+            major: true,
+            freq: options.freq,
+            slope: options.slope || 3.0,
             type: 'RNW'
         };
 
         const addedNav = geofs.nav.addNavaid(Object.assign({}, runwayData));
-        runwayData.id = addedNav.id;
 
-        if (geofs.map && typeof geofs.map.addRunwayMarker === 'function') {
-            if (addedNav.marker) {
-                addedNav.marker.destroy();
-            }
+        if (geofs.map?.addRunwayMarker) {
+            if (addedNav.marker) addedNav.marker.destroy();
             const marker = geofs.map.addRunwayMarker(runwayData);
             addedNav.marker = marker;
-            console.log(`🗺️ 地图标记已更新: ${icao} ${ident}`);
         }
 
-        if (freq) {
-            const ilsData = {
-                icao: icao,
-                ident: ident + 'X',
-                name: `${icao} ${ident} ILS`,
-                lat: lat,
-                lon: lon,
-                heading: heading,
-                freq: freq,
-                slope: slope,
-                type: 'ILS'
-            };
+        if (options.freq) {
+            const ilsData = Object.assign({}, runwayData, {
+                type: 'ILS',
+                ident: ident + 'X'
+            });
+
             const addedILS = geofs.nav.addNavaid(ilsData);
-            if (!geofs.nav.frequencies[freq]) {
-                geofs.nav.frequencies[freq] = [];
+
+            if (!geofs.nav.frequencies[options.freq]) {
+                geofs.nav.frequencies[options.freq] = [];
             }
-            geofs.nav.frequencies[freq].push(addedILS);
-            console.log(`📡 ILS 导航台已添加: ${icao} ${ident} | 频率: ${(freq/1000).toFixed(2)} MHz`);
+
+            geofs.nav.frequencies[options.freq].push(addedILS);
         }
 
-        if (geofs.api.map && geofs.api.map.updateMarkerLayers) {
+        if (geofs.api?.map?.updateMarkerLayers) {
             geofs.api.map.updateMarkerLayers();
         }
 
@@ -205,74 +193,58 @@
     }
 
     async function loadILSData(url) {
-        console.log(`🚀 正在加载 ILS/RNW 数据: ${url}`);
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const data = await response.json();
+        const data = await (await fetch(url)).json();
+        data.forEach(addCustomRunway);
+    }
 
-            if (!Array.isArray(data)) {
-                console.error('❌ JSON 格式错误：应为数组');
-                return;
-            }
+    // ==================== ✅ 新增：距离卸载系统 ====================
+    function startDistanceUnload() {
 
-            let successCount = 0;
-            data.forEach((item, index) => {
-                try {
-                    const result = addCustomRunway(item);
-                    if (result) successCount++;
-                } catch (e) {
-                    console.warn(`⚠️ 第 ${index + 1} 条数据添加失败:`, e);
-                }
+        const UNLOAD_KM = 260;
+        const R = 6371;
+        const toRad = Math.PI / 180;
+
+        function dist(a,b,c,d){
+            const dLat=(c-a)*toRad,dLon=(d-b)*toRad;
+            const x=Math.sin(dLat/2)**2+Math.cos(a*toRad)*Math.cos(c*toRad)*Math.sin(dLon/2)**2;
+            return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+        }
+
+        setInterval(() => {
+
+            if (!geofs.aircraft?.instance) return;
+
+            const lat = geofs.aircraft.instance.llaLocation[0];
+            const lon = geofs.aircraft.instance.llaLocation[1];
+
+            geofs.nav.navaids = geofs.nav.navaids.filter(n => {
+                const d = dist(lat, lon, n.lat, n.lon);
+                return d < UNLOAD_KM;
             });
 
-            console.log(`🎉 ILS/RNW 数据导入完成！成功添加 ${successCount}/${data.length} 条`);
-        } catch (error) {
-            console.error('❌ ILS/RNW 数据加载失败:', error.message);
-        }
-    }
-
-    // 刷新地图辅助函数
-    function refreshMap() {
-        if (typeof geofs !== 'undefined' && geofs.aircraft && geofs.aircraft.instance) {
-            const pos = geofs.aircraft.instance.getPosition();
-            if (pos) {
-                geofs.aircraft.instance.setPosition({ lat: pos.lat + 0.001, lng: pos.lng, alt: pos.alt });
-                setTimeout(() => geofs.aircraft.instance.setPosition(pos), 100);
-                console.log('🔄 已轻微移动飞机以触发地图刷新');
+            if (geofs.map?.runwayMarkers) {
+                geofs.map.runwayMarkers =
+                    geofs.map.runwayMarkers.filter(m => {
+                        const d = dist(lat, lon, m.lat, m.lon);
+                        return d < UNLOAD_KM;
+                    });
             }
-        }
-        if (typeof map !== 'undefined' && map.setView) {
-            const center = map.getCenter();
-            map.setView(center, map.getZoom() - 0.1);
-            setTimeout(() => map.setView(center, map.getZoom() + 0.1), 50);
-        }
+
+        }, 5000);
+
+        console.log("📡 距离卸载已启动");
     }
 
-    // ---------- 主执行流程 ----------
-    (async function main() {
-        console.log('🔧 合并插件启动，配置:', CONFIG);
+    // ==================== 主入口 ====================
+    waitGeoFSFull(async () => {
 
-        // 1. 加载跑道网格数据（用于跑道平整和附近跑道检测）
-        if (CONFIG.GRID_DATA_URL) {
-            await loadGridData(CONFIG.GRID_DATA_URL);
-        } else {
-            console.warn('⚠️ 未配置 GRID_DATA_URL，跳过跑道网格数据加载');
-        }
+        console.log('🔧 插件启动');
 
-        // 2. 加载 ILS/RNW 数据（用于导航、地图标记和弹出窗口）
-        if (CONFIG.ILS_DATA_URL) {
-            await loadILSData(CONFIG.ILS_DATA_URL);
-        } else {
-            console.warn('⚠️ 未配置 ILS_DATA_URL，跳过 ILS/RNW 数据加载');
-        }
+        await loadGridData(CONFIG.GRID_DATA_URL);
+        await loadILSData(CONFIG.ILS_DATA_URL);
 
-        // 3. 刷新地图显示
-        refreshMap();
-    })();
+        startDistanceUnload();
 
-    // 暴露全局方法（可选）
-    window.addCustomRunway = addCustomRunway;
-    window.loadILSData = loadILSData;
-    window.loadGridData = loadGridData;
+    });
+
 })();
