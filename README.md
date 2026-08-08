@@ -17,7 +17,7 @@ Addon created with help of Deepseek
 
 This addon add some runways which were missing in GeoFS's runways database,
 
-the new added runways have **usable PAPI light** ,**usebale ILS** and **runway overlay**
+the new added runways have **usable PAPI light** ,**usebale ILS** , **Tp point on the map** and **runway overlay**
 
 **If you have any runways need to add,please contact me and send me the relevant materials**
 
