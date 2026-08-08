@@ -1018,5 +1018,29 @@
         "freq": 109700,
         "slope": 3.0,
         "major": true
+    },
+    {
+        "icao": "ZSPD",
+        "ident": "15",
+        "lat": 31.15134057450782,
+        "lon": 121.83875816621152,
+        "heading": 168,
+        "lengthFt": 11189,
+        "widthFt": 144,
+        "freq": null,
+        "slope": 3.0,
+        "major": true
+    },
+    {
+        "icao": "ZSPD",
+        "ident": "33",
+        "lat": 31.12216820798341,
+        "lon": 121.84975996134486,
+        "heading": 348,
+        "lengthFt": 11189,
+        "widthFt": 144,
+        "freq": null,
+        "slope": 3.0,
+        "major": true
     }
 ]
